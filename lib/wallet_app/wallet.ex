@@ -1,5 +1,6 @@
 defmodule WalletApp.Wallet do
-  import WalletApp.Account, only: [get_current_account: 1]
+  import WalletApp.Util, only: [get_current_account: 1]
+  
   alias WalletApp.Repo
   alias WalletApp.Schema.Account
   alias WalletApp.Schema.Wallet
@@ -14,4 +15,9 @@ defmodule WalletApp.Wallet do
 
   defp create_wallet_response({:error, _}), do: raise "Validation error"
   defp create_wallet_response({:ok, %Wallet{uuid: uuid}}), do: uuid
+
+  def get_wallets(session_token) do
+    %Account{id: account_id} = get_current_account(session_token)
+
+  end
 end
