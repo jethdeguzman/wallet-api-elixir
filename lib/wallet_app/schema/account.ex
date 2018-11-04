@@ -3,16 +3,20 @@ defmodule WalletApp.Schema.Account do
 
   import Ecto.Changeset
 
+  alias WalletApp.Schema.Wallet
+
   schema "accounts" do
-    field :uuid, :string, default: Ecto.UUID.generate()
+    field :uuid, :string
     field :username, :string
     field :password, :string
     timestamps()
+    has_many :wallets, Wallet
   end
 
-  @required_fields [:username, :password]
+  @required_fields [:uuid, :username, :password]
 
   def changeset(account, params \\ %{}) do
+    params = Map.put(params, :uuid, Ecto.UUID.generate())
     account
       |> cast(params, @required_fields)
       |> validate_required(@required_fields)
