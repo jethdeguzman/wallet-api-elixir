@@ -34,4 +34,14 @@ defmodule WalletApp.Account do
       |> JsonWebToken.sign(@jwt_opts)
       |> (&({:ok, &1})).()
   end
+
+  def get_current_account(session_token) do
+    try do
+      #TODO: validate expiration
+      {:ok, %{account_uuid: account_uuid}} = JsonWebToken.verify(session_token, @jwt_opts)
+      Repo.get_by(Account, uuid: account_uuid)
+    rescue
+      _ -> raise "Invalid session token"
+    end
+  end
 end
