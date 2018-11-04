@@ -4,8 +4,8 @@ defmodule WalletApp.Account do
 
   import Application, only: [get_env: 2]
 
+  @one_hour 60*60
   @jwt_opts %{alg: get_env(:wallet_app, :jwt_alg), key: get_env(:wallet_app, :jwt_key)}
-  @jwt_exp DateTime.to_unix(DateTime.utc_now()) + 60*60
 
   def create_account(username, password) do
     %Account{}
@@ -28,8 +28,9 @@ defmodule WalletApp.Account do
     end
   end
 
-  def generate_session_token(%Account{uuid: account_id}) do
-    %{account_id: account_id, exp: @jwt_exp}
+  def generate_session_token(account_uuid) do
+    %{account_uuid: account_uuid, exp: DateTime.to_unix(DateTime.utc_now()) + @one_hour}
       |> JsonWebToken.sign(@jwt_opts)
+      |> (&({:ok, &1})).()
   end
 end
