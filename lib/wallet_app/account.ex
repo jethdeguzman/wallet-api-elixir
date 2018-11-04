@@ -18,13 +18,14 @@ defmodule WalletApp.Account do
   defp create_account_response({:ok, %Account{uuid: uuid}}), do: uuid
 
   def login_account(username, password) do
-    account = Repo.get_by(Account, username: username)
-    
-    unless account, do: raise "Account does not exist"
-    
-    case Bcrypt.verify_pass(password, account.password) do
-      true -> generate_session_token(account)
-      _ -> raise "Invalid login credentials"
+    with(
+      %Account{uuid: uuid, password: hashed_password} <- Repo.get_by(Account, username: username),
+      true <- Bcrypt.verify_pass(password, hashed_password),
+      {:ok, session_token} <- generate_session_token(uuid)
+    ) do 
+      session_token 
+    else
+       _ -> raise "Invalid login credentials"
     end
   end
 
