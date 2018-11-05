@@ -5,7 +5,7 @@ defmodule WalletApp.Repo.Migrations.CreateTransactions do
   	create table(:transactions) do
   	  add :uuid, :string
   	  add :type, :string
-  	  add :descirption, :string
+  	  add :description, :string
   	  add :amount, :decimal
   	  add :balance, :decimal
   	  add :wallet_id, references(:wallets)

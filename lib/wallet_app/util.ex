@@ -65,4 +65,39 @@ defmodule WalletApp.Util do
       }
     end
   end
+
+  def get_wallet_transactions(account_id, wallet_uuid) do
+    query = """
+      select
+        t.uuid,
+        t.type,
+        t.description,
+        t.amount,
+        t.inserted_at,
+        w.currency
+      from
+        transactions t
+      left join
+        wallets w
+      on w.id = t.wallet_id
+      left join
+        accounts a
+      on a.id = w.account_id
+      where
+        a.id = $1 and w.uuid = $2
+      order by
+        t.inserted_at desc
+    """
+    %{rows: transactions} = Ecto.Adapters.SQL.query!(Repo, query, [account_id, wallet_uuid])
+    Enum.map transactions, fn [uuid, type, description, amount, inserted_at, currency] ->
+      %{
+        uuid: uuid,
+        type: type,
+        description: description,
+        amount: amount,
+        currency: currency,
+        inserted_at: inserted_at
+      }
+    end
+  end
 end
