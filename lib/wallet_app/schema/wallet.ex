@@ -2,14 +2,16 @@ defmodule WalletApp.Schema.Wallet do
   use Ecto.Schema
 
   import Ecto.Changeset
-  
+
   alias WalletApp.Schema.Account
+  alias WalletApp.Schema.Transaction
 
   schema "wallets" do
     field :uuid, :string
     field :currency, :string
     timestamps()
     belongs_to :account, Account
+    has_many :transactions, Transaction
   end
 
   @required_fields [:uuid, :currency, :account_id]
