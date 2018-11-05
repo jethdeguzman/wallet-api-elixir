@@ -1,5 +1,5 @@
 defmodule WalletApp.Wallet do
-  import WalletApp.Util, only: [get_current_account: 1, get_account_wallets: 2]
+  import WalletApp.Util, only: [get_current_account: 1, get_account_wallets: 2, get_wallet_transactions: 2]
 
   alias WalletApp.Repo
   alias WalletApp.Schema.Account
@@ -23,7 +23,7 @@ defmodule WalletApp.Wallet do
     ) do
       wallets
     else
-      _ -> raise "Error fetching wallets for #{:account_id}"
+      _ -> raise "Error fetching wallets for account #{:account_id}"
     end
   end
 
@@ -35,6 +35,17 @@ defmodule WalletApp.Wallet do
       if length(wallets) > 0, do: Enum.at(wallets, 0), else: raise "Wallet #{wallet_uuid} not found"
     else
       _ -> raise "Error fetching wallet #{:wallet_id}"
+    end
+  end
+
+  def get_transactions(session_token, wallet_uuid) do
+    with(
+      %Account{id: account_id} <- get_current_account(session_token),
+      transactions <- get_wallet_transactions(account_id, wallet_uuid)
+    ) do
+      transactions
+    else
+      _ -> raise "Error fetching transactions for wallet #{:wallet_uuid}"
     end
   end
 end
