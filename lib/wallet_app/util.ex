@@ -23,7 +23,15 @@ defmodule WalletApp.Util do
     end
   end
 
-  def get_account_wallets(account_id) do
+  def get_account_wallets(account_id, wallet_uuid \\ nil) do
+    #TODO: This should be refactored to handle other field filters
+    {where_clause, params} =
+      if is_nil(wallet_uuid) do
+        {"where w.account_id = $1", [account_id]}
+      else
+        {"where w.account_id = $1 and w.uuid = $2", [account_id, wallet_uuid]}
+      end
+
     query = """
       select
         w.uuid,
@@ -43,11 +51,18 @@ defmodule WalletApp.Util do
           t.inserted_at desc
         limit 1
       ) t1 on t1.wallet_id = w.id
-      where
-        w.account_id = $1
-      order by 
+      #{where_clause}
+      order by
         w.inserted_at desc
     """
-    Ecto.Adapters.SQL.query!(Repo, query, [account_id])
+    %{rows: wallets} = Ecto.Adapters.SQL.query!(Repo, query, params)
+    Enum.map wallets, fn [uuid, currency, balance, inserted_at] ->
+      %{
+        uuid: uuid,
+        currency: currency,
+        balance: balance,
+        inserted_at: inserted_at
+      }
+    end
   end
 end
