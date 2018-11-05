@@ -1,4 +1,5 @@
 defmodule WalletApp.Util do
+  alias WalletApp.Exception.InvalidSessionToken
   alias WalletApp.Repo
   alias WalletApp.Schema.Account
 
@@ -19,7 +20,7 @@ defmodule WalletApp.Util do
       {:ok, %{account_uuid: account_uuid}} = JsonWebToken.verify(session_token, @jwt_opts)
       Repo.get_by(Account, uuid: account_uuid)
     rescue
-      _ -> raise "Invalid session token"
+      _ -> raise InvalidSessionToken, session_token
     end
   end
 

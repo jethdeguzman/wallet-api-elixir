@@ -1,6 +1,7 @@
 defmodule WalletApp.Account do
   import WalletApp.Util, only: [generate_session_token: 1]
-  
+
+  alias WalletApp.Exception.{InvalidLoginCredentialsError, ValidationError}
   alias WalletApp.Repo
   alias WalletApp.Schema.Account
 
@@ -11,7 +12,7 @@ defmodule WalletApp.Account do
       |> create_account_response
   end
 
-  defp create_account_response({:error, _}), do: raise "Validation error"
+  defp create_account_response({:error, _}), do: raise ValidationError
   defp create_account_response({:ok, %Account{uuid: uuid}}), do: uuid
 
   def login_account(username, password) do
@@ -19,10 +20,10 @@ defmodule WalletApp.Account do
       %Account{uuid: uuid, password: hashed_password} <- Repo.get_by(Account, username: username),
       true <- Bcrypt.verify_pass(password, hashed_password),
       {:ok, session_token} <- generate_session_token(uuid)
-    ) do 
-      session_token 
+    ) do
+      session_token
     else
-       _ -> raise "Invalid login credentials"
+       _ -> raise InvalidLoginCredentialsError
     end
   end
 end
