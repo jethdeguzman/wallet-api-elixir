@@ -2,8 +2,10 @@ defmodule WalletApp.Util do
   alias WalletApp.Exception.InvalidSessionToken
   alias WalletApp.Repo
   alias WalletApp.Schema.Account
+  alias WalletApp.Schema.Transaction
 
   import Application, only: [get_env: 2]
+  import Ecto.Query, only: [from: 2]
 
   @one_hour 60*60
   @jwt_opts %{alg: get_env(:wallet_app, :jwt_alg), key: get_env(:wallet_app, :jwt_key)}
@@ -68,29 +70,16 @@ defmodule WalletApp.Util do
   end
 
   def get_wallet_transactions(account_id, wallet_uuid) do
-    query = """
-      select
-        t.uuid,
-        t.type,
-        t.description,
-        t.amount,
-        t.inserted_at,
-        w.currency
-      from
-        transactions t
-      left join
-        wallets w
-      on w.id = t.wallet_id
-      left join
-        accounts a
-      on a.id = w.account_id
-      where
-        a.id = $1 and w.uuid = $2
-      order by
-        t.inserted_at desc
-    """
-    %{rows: transactions} = Ecto.Adapters.SQL.query!(Repo, query, [account_id, wallet_uuid])
-    Enum.map transactions, fn [uuid, type, description, amount, inserted_at, currency] ->
+    query =
+      from t in Transaction,
+      order_by: [desc: t.inserted_at],
+      left_join: w in assoc(t, :wallet),
+      left_join: a in assoc(w, :account),
+      where: a.id == ^account_id,
+      where: w.uuid == ^wallet_uuid,
+      select: [t.uuid, t.type, t.description, t.amount, w.currency, t.inserted_at]
+
+    Enum.map query |> Repo.all, fn [uuid, type, description, amount, currency, inserted_at] ->
       %{
         uuid: uuid,
         type: type,

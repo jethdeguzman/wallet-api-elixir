@@ -16,7 +16,6 @@ defmodule WalletApp.Exception.InvalidSessionToken do
   end
 end
 
-
 defmodule WalletApp.Exception.NotFound do
   defexception [:message]
 
