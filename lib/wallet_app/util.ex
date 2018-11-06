@@ -2,6 +2,7 @@ defmodule WalletApp.Util do
   alias WalletApp.Exception.InvalidSessionToken
   alias WalletApp.Repo
   alias WalletApp.Schema.Account
+  alias WalletApp.Schema.Wallet
   alias WalletApp.Schema.Transaction
 
   import Application, only: [get_env: 2]
@@ -27,39 +28,22 @@ defmodule WalletApp.Util do
   end
 
   def get_account_wallets(account_id, wallet_uuid \\ nil) do
-    #TODO: This should be refactored to handle other field filters
-    {where_clause, params} =
-      if is_nil(wallet_uuid) do
-        {"where w.account_id = $1", [account_id]}
-      else
-        {"where w.account_id = $1 and w.uuid = $2", [account_id, wallet_uuid]}
-      end
+    last_tx_query =
+      from t in Transaction,
+      order_by: [desc: t.inserted_at],
+      limit: 1,
+      select: %{wallet_id: t.wallet_id, balance: t.balance}
 
-    query = """
-      select
-        w.uuid,
-        w.currency,
-        coalesce(t1.balance, 0.0000) as balance,
-        w.inserted_at
-      from
-        wallets w
-      left join (
-        select
-          t.wallet_id,
-          t.balance
-        from
-          transactions t
-        order by
-          t.wallet_id,
-          t.inserted_at desc
-        limit 1
-      ) t1 on t1.wallet_id = w.id
-      #{where_clause}
-      order by
-        w.inserted_at desc
-    """
-    %{rows: wallets} = Ecto.Adapters.SQL.query!(Repo, query, params)
-    Enum.map wallets, fn [uuid, currency, balance, inserted_at] ->
+    query =
+      from w in Wallet,
+      left_join: t2 in subquery(last_tx_query),
+      on: t2.wallet_id == w.id,
+      where: w.account_id == ^account_id,
+      select: [w.uuid, w.currency, fragment("coalesce(?, 0.0) as balance", t2.balance), w.inserted_at]
+
+    query = if not is_nil(wallet_uuid), do: from(w in query, where: w.uuid == ^wallet_uuid), else: query
+
+    Enum.map Repo.all(query), fn [uuid, currency, balance, inserted_at] ->
       %{
         uuid: uuid,
         currency: currency,
@@ -79,7 +63,7 @@ defmodule WalletApp.Util do
       where: w.uuid == ^wallet_uuid,
       select: [t.uuid, t.type, t.description, t.amount, w.currency, t.inserted_at]
 
-    Enum.map query |> Repo.all, fn [uuid, type, description, amount, currency, inserted_at] ->
+    Enum.map Repo.all(query), fn [uuid, type, description, amount, currency, inserted_at] ->
       %{
         uuid: uuid,
         type: type,
