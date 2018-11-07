@@ -12,13 +12,14 @@ defmodule WalletApp.Wallet do
   end
 
   def get_wallets(account_id) do
-    get_wallets_query(account_id)
+    account_id
+      |> get_wallets_query
       |> Repo.all
   end
 
   def get_wallet(account_id, wallet_uuid) do
-    from(w in get_wallets_query(account_id), where: w.uuid == ^wallet_uuid)
-      |> Repo.all
+    query = from(w in get_wallets_query(account_id), where: w.uuid == ^wallet_uuid)
+    Repo.all(query)
   end
 
   def get_wallet_transactions(account_id, wallet_uuid) do
@@ -31,8 +32,7 @@ defmodule WalletApp.Wallet do
       where: w.uuid == ^wallet_uuid,
       select: [t.uuid, t.type, t.description, t.amount, w.currency, t.inserted_at]
 
-    query
-      |> Repo.all
+    Repo.all(query)
   end
 
   defp get_wallets_query(account_id) do

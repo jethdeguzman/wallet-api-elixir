@@ -6,8 +6,8 @@ defmodule WalletApp do
   alias WalletApp.Wallet
 
   def register(username, password) do
-    Account.create_account(username, password)
-      |> register_response
+    account = Account.create_account(username, password)
+    register_response(account)
   end
 
   def login(username, password) do
@@ -27,8 +27,7 @@ defmodule WalletApp do
       %AccountSchema{id: account_id} <- get_current_account(session_token),
       wallets <- Wallet.get_wallets(account_id)
     ) do
-      wallets
-        |> get_wallets_response
+      get_wallets_response(wallets)
     else
       _ -> raise Exception.GetWalletsError
     end
@@ -40,7 +39,7 @@ defmodule WalletApp do
       wallets <- Wallet.get_wallet(account_id, wallet_uuid)
     ) do
       if length(wallets) > 0,
-        do: Enum.at(wallets, 0) |> get_wallet_response,
+        do: wallets |> Enum.at(0) |> get_wallet_response,
         else: raise Exception.NotFound, wallet_uuid
     else
       _ -> raise Exception.NotFound, wallet_uuid
@@ -52,8 +51,7 @@ defmodule WalletApp do
       %AccountSchema{id: account_id} <- get_current_account(session_token),
       transactions <- Wallet.get_wallet_transactions(account_id, wallet_uuid)
     ) do
-      transactions
-        |> get_transactions_response
+      get_transactions_response(transactions)
     else
       _ -> raise Exception.GetTransactionsError
     end
