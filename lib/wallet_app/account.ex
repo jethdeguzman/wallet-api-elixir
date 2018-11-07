@@ -8,11 +8,6 @@ defmodule WalletApp.Account do
       |> Repo.insert
   end
 
-  def get_account_by(%{username: username}) do
-    Repo.get_by(Account, username: username)
-  end
-
-  def get_account_by(%{uuid: uuid}) do
-    Repo.get_by(Account, uuid: uuid)
-  end
+  def get_account_by(%{username: username}), do: Repo.get_by(Account, username: username)
+  def get_account_by(%{uuid: uuid}), do: Repo.get_by(Account, uuid: uuid)
 end
