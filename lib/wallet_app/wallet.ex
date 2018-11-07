@@ -1,51 +1,51 @@
 defmodule WalletApp.Wallet do
-  alias WalletApp.Exception.{ValidationError, NotFound, GetWalletsError, GetTransactionsError}
   alias WalletApp.Repo
-  alias WalletApp.Schema.Account
   alias WalletApp.Schema.Wallet
-  alias WalletApp.Util
+  alias WalletApp.Schema.Transaction
 
-  def create_wallet(session_token, currency \\ "PHP") do
-    %Account{id: account_id} = Util.get_current_account(session_token)
+  import Ecto.Query
+
+  def create_wallet(account_id, currency \\ "PHP") do
     %Wallet{}
       |> Wallet.changeset(%{account_id: account_id, currency: currency})
       |> Repo.insert
-      |> create_wallet_response
   end
 
-  defp create_wallet_response({:error, _}), do: raise ValidationError
-  defp create_wallet_response({:ok, %Wallet{uuid: uuid}}), do: uuid
-
-  def get_wallets(session_token) do
-    with(
-      %Account{id: account_id} <- Util.get_current_account(session_token),
-      wallets <- Util.get_account_wallets(account_id)
-    ) do
-      wallets
-    else
-      _ -> raise GetWalletsError
-    end
+  def get_wallets(account_id) do
+    get_wallets_query(account_id)
+      |> Repo.all
   end
 
-  def get_wallet(session_token, wallet_uuid) do
-    with(
-      %Account{id: account_id} <- Util.get_current_account(session_token),
-      wallets <- Util.get_account_wallets(account_id, wallet_uuid)
-    ) do
-      if length(wallets) > 0, do: Enum.at(wallets, 0), else: raise NotFound, wallet_uuid
-    else
-      _ -> raise NotFound, wallet_uuid
-    end
+  def get_wallet(account_id, wallet_uuid) do
+    from(w in get_wallets_query(account_id), where: w.uuid == ^wallet_uuid)
+      |> Repo.all
   end
 
-  def get_transactions(session_token, wallet_uuid) do
-    with(
-      %Account{id: account_id} <- Util.get_current_account(session_token),
-      transactions <- Util.get_wallet_transactions(account_id, wallet_uuid)
-    ) do
-      transactions
-    else
-      _ -> raise GetTransactionsError
-    end
+  def get_wallet_transactions(account_id, wallet_uuid) do
+    query =
+      from t in Transaction,
+      order_by: [desc: t.inserted_at],
+      left_join: w in assoc(t, :wallet),
+      left_join: a in assoc(w, :account),
+      where: a.id == ^account_id,
+      where: w.uuid == ^wallet_uuid,
+      select: [t.uuid, t.type, t.description, t.amount, w.currency, t.inserted_at]
+
+    query
+      |> Repo.all
+  end
+
+  defp get_wallets_query(account_id) do
+    last_tx_query =
+      from t in Transaction,
+      order_by: [desc: t.inserted_at],
+      limit: 1,
+      select: %{wallet_id: t.wallet_id, balance: t.balance}
+
+    from w in Wallet,
+      left_join: t2 in subquery(last_tx_query),
+      on: t2.wallet_id == w.id,
+      where: w.account_id == ^account_id,
+      select: [w.uuid, w.currency, fragment("coalesce(?, 0.0) as balance", t2.balance), w.inserted_at]
   end
 end
