@@ -96,14 +96,13 @@ defmodule WalletAppTest do
 
   test "successful get wallets" do
     username = unique_string()
-    currency = "BTC"
 
     WalletApp.register(username, @password)
 
     session_token = WalletApp.login(username, @password)
-    wallet_uuid = WalletApp.create_wallet(session_token, currency)
+    wallet_uuid = WalletApp.create_wallet(session_token, @currency)
 
-    assert [%{currency: currency, uuid: wallet_uuid}] = WalletApp.get_wallets(session_token)
+    assert [%{currency: @currency, uuid: wallet_uuid}] = WalletApp.get_wallets(session_token)
   end
 
   test "invalid session token on get wallets" do
@@ -116,14 +115,13 @@ defmodule WalletAppTest do
 
   test "successful get wallet" do
     username = unique_string()
-    currency = "BTC"
 
     WalletApp.register(username, @password)
 
     session_token =WalletApp.login(username, @password)
-    wallet_uuid = WalletApp.create_wallet(session_token, currency)
+    wallet_uuid = WalletApp.create_wallet(session_token, @currency)
 
-    assert %{currency: currency, uuid: wallet_uuid} = WalletApp.get_wallet(session_token, wallet_uuid)
+    assert %{currency: @currency, uuid: wallet_uuid} = WalletApp.get_wallet(session_token, wallet_uuid)
   end
 
   test "not found on get wallet" do
@@ -141,12 +139,11 @@ defmodule WalletAppTest do
 
   test "get transactions successful" do
     username = unique_string()
-    currency = "BTC"
 
     WalletApp.register(username, @password)
 
     session_token =WalletApp.login(username, @password)
-    wallet_uuid = WalletApp.create_wallet(session_token, currency)
+    wallet_uuid = WalletApp.create_wallet(session_token, @currency)
 
     assert [] = WalletApp.get_transactions(session_token, wallet_uuid)
   end
