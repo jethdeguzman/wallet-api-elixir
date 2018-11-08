@@ -3,6 +3,7 @@ defmodule WalletApp do
   alias WalletApp.Auth
   alias WalletApp.Exception
   alias WalletApp.Schema.Account, as: AccountSchema
+  alias WalletApp.Schema.Wallet, as: WalletSchema
   alias WalletApp.Wallet
 
   def register(username, password) do
@@ -19,6 +20,15 @@ defmodule WalletApp do
       session_token
     else
       _ -> raise Exception.InvalidLoginCredentialsError
+    end
+  end
+
+  def create_wallet(session_token, currency) do
+    with(
+      %AccountSchema{id: account_id} = get_current_account(session_token)
+    ) do
+      wallet = Wallet.create_wallet(account_id, currency)
+      create_wallet_response(wallet)
     end
   end
 
@@ -59,6 +69,9 @@ defmodule WalletApp do
 
   defp register_response({:error, _}), do: raise Exception.ValidationError
   defp register_response({:ok, %AccountSchema{uuid: uuid}}), do: uuid
+
+  defp create_wallet_response({:error, _}), do: raise Exception.ValidationError
+  defp create_wallet_response({:ok, %WalletSchema{uuid: uuid}}), do: uuid
 
   defp get_wallets_response(wallets) do
     wallets
