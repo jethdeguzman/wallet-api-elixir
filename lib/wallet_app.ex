@@ -38,8 +38,6 @@ defmodule WalletApp do
       wallets <- Wallet.get_wallets(account_id)
     ) do
       get_wallets_response(wallets)
-    else
-      _ -> raise Exception.GetWalletsError
     end
   end
 
@@ -51,8 +49,6 @@ defmodule WalletApp do
       if length(wallets) > 0,
         do: wallets |> Enum.at(0) |> get_wallet_response,
         else: raise Exception.NotFound, wallet_uuid
-    else
-      _ -> raise Exception.NotFound, wallet_uuid
     end
   end
 
@@ -62,8 +58,6 @@ defmodule WalletApp do
       transactions <- Wallet.get_wallet_transactions(account_id, wallet_uuid)
     ) do
       get_transactions_response(transactions)
-    else
-      _ -> raise Exception.GetTransactionsError
     end
   end
 

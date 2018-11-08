@@ -20,7 +20,7 @@ defmodule WalletApp.Schema.Account do
     account
       |> cast(params, @required_fields)
       |> validate_required(@required_fields)
-      |> validate_format(:username, ~r/^[a-zA-Z0-9_]+$/)
+      |> validate_format(:username, ~r/^[a-zA-Z0-9_-]+$/)
       |> validate_length(:password, min: 6)
       |> unsafe_validate_unique([:username], WalletApp.Repo) #unique_constraint is not properly working with sqlite
       |> generate_hash_password

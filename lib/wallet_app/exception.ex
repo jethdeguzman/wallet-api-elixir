@@ -25,11 +25,3 @@ defmodule WalletApp.Exception.NotFound do
     %WalletApp.Exception.NotFound{message: msg}
   end
 end
-
-defmodule WalletApp.Exception.GetWalletsError do
-  defexception message: "Error fetching wallets"
-end
-
-defmodule WalletApp.Exception.GetTransactionsError do
-  defexception message: "Error fetching transactions"
-end
