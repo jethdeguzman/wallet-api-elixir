@@ -22,4 +22,9 @@ erl_crash.dump
 # Ignore package tarball (built via "mix hex.build").
 wallet_app-*.tar
 
+# Sqlite3 db
 *.sqlite3
+# Sqlite3 temp files
+*.sqlite3-*
+
+
