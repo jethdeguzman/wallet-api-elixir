@@ -118,10 +118,11 @@ defmodule WalletAppTest do
 
     WalletApp.register(username, @password)
 
-    session_token =WalletApp.login(username, @password)
+    session_token = WalletApp.login(username, @password)
     wallet_uuid = WalletApp.create_wallet(session_token, @currency)
 
-    assert %{currency: @currency, uuid: wallet_uuid} = WalletApp.get_wallet(session_token, wallet_uuid)
+    assert %{currency: @currency, uuid: wallet_uuid} =
+             WalletApp.get_wallet(session_token, wallet_uuid)
   end
 
   test "not found on get wallet" do
@@ -130,7 +131,7 @@ defmodule WalletAppTest do
 
     WalletApp.register(username, @password)
 
-    session_token =WalletApp.login(username, @password)
+    session_token = WalletApp.login(username, @password)
 
     assert_raise Exception.NotFound, "Record not found: invalid_uuid", fn ->
       WalletApp.get_wallet(session_token, wallet_uuid)
@@ -142,7 +143,7 @@ defmodule WalletAppTest do
 
     WalletApp.register(username, @password)
 
-    session_token =WalletApp.login(username, @password)
+    session_token = WalletApp.login(username, @password)
     wallet_uuid = WalletApp.create_wallet(session_token, @currency)
 
     assert [] = WalletApp.get_transactions(session_token, wallet_uuid)

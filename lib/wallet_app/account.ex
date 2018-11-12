@@ -4,8 +4,8 @@ defmodule WalletApp.Account do
 
   def create_account(username, password) do
     %Account{}
-      |> Account.changeset(%{username: username, password: password})
-      |> Repo.insert
+    |> Account.changeset(%{username: username, password: password})
+    |> Repo.insert()
   end
 
   def get_account_by(%{username: username}), do: Repo.get_by(Account, username: username)

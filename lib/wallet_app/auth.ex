@@ -1,7 +1,7 @@
 defmodule WalletApp.Auth do
   import Application
 
-  @one_hour 60*60
+  @one_hour 60 * 60
   @jwt_opts %{alg: get_env(:wallet_app, :jwt_alg), key: get_env(:wallet_app, :jwt_key)}
 
   def password_matched?(hashed_password, password) do
@@ -10,8 +10,8 @@ defmodule WalletApp.Auth do
 
   def generate_session_token(%{account_uuid: account_uuid}) do
     %{account_uuid: account_uuid, exp: DateTime.to_unix(DateTime.utc_now()) + @one_hour}
-      |> JsonWebToken.sign(@jwt_opts)
-      |> (&({:ok, &1})).()
+    |> JsonWebToken.sign(@jwt_opts)
+    |> (&{:ok, &1}).()
   end
 
   def decode_session_token(session_token) do

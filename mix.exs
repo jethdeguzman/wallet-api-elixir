@@ -24,7 +24,7 @@ defmodule WalletApp.MixProject do
     [
       {:bcrypt_elixir, "~> 1.1.1"},
       {:sqlite_ecto2, "~> 2.2"},
-      {:json_web_token, "~> 0.2.1"},
+      {:json_web_token, "~> 0.2.1"}
     ]
   end
 end
