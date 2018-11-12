@@ -6,6 +6,10 @@ defmodule WalletAppTest do
   @password "password"
   @currency "PHP"
 
+  setup do
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(WalletApp.Repo)
+  end
+
   test "successful account registration" do
     assert WalletApp.register(unique_string(), @password)
   end

@@ -7,7 +7,8 @@ defmodule WalletApp.MixProject do
       version: "0.1.0",
       elixir: "~> 1.7",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      aliases: aliases()
     ]
   end
 
@@ -25,6 +26,12 @@ defmodule WalletApp.MixProject do
       {:bcrypt_elixir, "~> 1.1.1"},
       {:sqlite_ecto2, "~> 2.2"},
       {:json_web_token, "~> 0.2.1"}
+    ]
+  end
+
+  defp aliases do
+    [
+      test: ["ecto.create --quiet", "ecto.migrate", "test"]
     ]
   end
 end
