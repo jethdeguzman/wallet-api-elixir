@@ -28,4 +28,28 @@ defmodule WalletAppTest do
 
     assert {:error, %{errors: [password: _]}} = Accounts.register(username, password)
   end
+
+  test "successful login" do
+    username = "testuser"
+    password = "password"
+
+    Accounts.register(username, password)
+    assert {:ok, _session_token} = Accounts.login(username, password)
+  end
+
+  test "password not matched login" do
+    username = "testuser"
+    password = "password"
+    wrongpass = "wrongpass"
+
+    Accounts.register(username, password)
+    assert {:error, "Invalid login credentials"} = Accounts.login(username, wrongpass)
+  end
+
+  test "account does not exist login" do
+    username = "testuser"
+    password = "password"
+
+    assert {:error, "Invalid login credentials"} = Accounts.login(username, password)
+  end
 end
