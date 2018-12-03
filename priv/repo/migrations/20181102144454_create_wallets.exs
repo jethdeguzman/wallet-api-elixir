@@ -5,7 +5,7 @@ defmodule WalletApp.Repo.Migrations.CreateWallets do
   	create table(:wallets) do
   	  add :uuid, :string
   	  add :currency, :string
-  	  add :account_id, references(:accounts)
+  	  add :user_id, references(:users)
   	  timestamps()
   	end
   end
