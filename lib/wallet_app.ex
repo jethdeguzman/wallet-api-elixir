@@ -2,21 +2,21 @@ defmodule WalletApp do
   alias WalletApp.Account
   alias WalletApp.Auth
   alias WalletApp.Exception
-  alias WalletApp.Schema.Account, as: AccountSchema
-  alias WalletApp.Schema.Wallet, as: WalletSchema
+  alias WalletApp.Accounts.User, as: UserSchema
+  alias WalletApp.Wallets.Wallet, as: WalletSchema
   alias WalletApp.Wallet
 
   def register(username, password) do
-    account = Account.create_account(username, password)
+    account = Account.create_user(username, password)
     register_response(account)
   end
 
   def login(username, password) do
     with(
-      %AccountSchema{uuid: account_uuid, password: hashed_password} <-
-        Account.get_account_by(%{username: username}),
+      %UserSchema{uuid: user_uuid, password: hashed_password} <-
+        Account.get_user_by(%{username: username}),
       true <- Auth.password_matched?(hashed_password, password),
-      {:ok, session_token} <- Auth.generate_session_token(%{account_uuid: account_uuid})
+      {:ok, session_token} <- Auth.generate_session_token(%{user_uuid: user_uuid})
     ) do
       session_token
     else
@@ -25,16 +25,16 @@ defmodule WalletApp do
   end
 
   def create_wallet(session_token, currency) do
-    with(%AccountSchema{id: account_id} = get_current_account(session_token)) do
-      wallet = Wallet.create_wallet(account_id, currency)
+    with(%UserSchema{id: user_id} = get_current_account(session_token)) do
+      wallet = Wallet.create_wallet(user_id, currency)
       create_wallet_response(wallet)
     end
   end
 
   def get_wallets(session_token) do
     with(
-      %AccountSchema{id: account_id} <- get_current_account(session_token),
-      wallets <- Wallet.get_wallets(account_id)
+      %UserSchema{id: user_id} <- get_current_account(session_token),
+      wallets <- Wallet.get_wallets(user_id)
     ) do
       get_wallets_response(wallets)
     end
@@ -42,8 +42,8 @@ defmodule WalletApp do
 
   def get_wallet(session_token, wallet_uuid) do
     with(
-      %AccountSchema{id: account_id} <- get_current_account(session_token),
-      wallets <- Wallet.get_wallet(account_id, wallet_uuid)
+      %UserSchema{id: user_id} <- get_current_account(session_token),
+      wallets <- Wallet.get_wallet(user_id, wallet_uuid)
     ) do
       if length(wallets) > 0,
         do: wallets |> Enum.at(0) |> get_wallet_response,
@@ -53,15 +53,15 @@ defmodule WalletApp do
 
   def get_transactions(session_token, wallet_uuid) do
     with(
-      %AccountSchema{id: account_id} <- get_current_account(session_token),
-      transactions <- Wallet.get_wallet_transactions(account_id, wallet_uuid)
+      %UserSchema{id: user_id} <- get_current_account(session_token),
+      transactions <- Wallet.get_wallet_transactions(user_id, wallet_uuid)
     ) do
       get_transactions_response(transactions)
     end
   end
 
   defp register_response({:error, _}), do: raise(Exception.ValidationError)
-  defp register_response({:ok, %AccountSchema{uuid: uuid}}), do: uuid
+  defp register_response({:ok, %UserSchema{uuid: uuid}}), do: uuid
 
   defp create_wallet_response({:error, _}), do: raise(Exception.ValidationError)
   defp create_wallet_response({:ok, %WalletSchema{uuid: uuid}}), do: uuid
@@ -104,8 +104,8 @@ defmodule WalletApp do
   defp get_current_account(session_token) do
     try do
       # TODO: validate expiration
-      {:ok, %{account_uuid: account_uuid}} = Auth.decode_session_token(session_token)
-      Account.get_account_by(%{uuid: account_uuid})
+      {:ok, %{user_uuid: user_uuid}} = Auth.decode_session_token(session_token)
+      Account.get_user_by(%{uuid: user_uuid})
     rescue
       _ -> raise Exception.InvalidSessionToken, session_token
     end

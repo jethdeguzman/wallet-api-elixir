@@ -1,34 +1,34 @@
 defmodule WalletApp.Wallet do
   alias WalletApp.Repo
-  alias WalletApp.Schema.Wallet
-  alias WalletApp.Schema.Transaction
+  alias WalletApp.Wallets.Wallet
+  alias WalletApp.Wallets.Transaction
 
   import Ecto.Query
 
-  def create_wallet(account_id, currency \\ "PHP") do
+  def create_wallet(user_id, currency \\ "PHP") do
     %Wallet{}
-    |> Wallet.changeset(%{account_id: account_id, currency: currency})
+    |> Wallet.changeset(%{user_id: user_id, currency: currency})
     |> Repo.insert()
   end
 
-  def get_wallets(account_id) do
-    account_id
+  def get_wallets(user_id) do
+    user_id
     |> get_wallets_query
     |> Repo.all()
   end
 
-  def get_wallet(account_id, wallet_uuid) do
-    query = from(w in get_wallets_query(account_id), where: w.uuid == ^wallet_uuid)
+  def get_wallet(user_id, wallet_uuid) do
+    query = from(w in get_wallets_query(user_id), where: w.uuid == ^wallet_uuid)
     Repo.all(query)
   end
 
-  def get_wallet_transactions(account_id, wallet_uuid) do
+  def get_wallet_transactions(user_id, wallet_uuid) do
     query =
       from(t in Transaction,
         order_by: [desc: t.inserted_at],
         left_join: w in assoc(t, :wallet),
-        left_join: a in assoc(w, :account),
-        where: a.id == ^account_id,
+        left_join: a in assoc(w, :user),
+        where: a.id == ^user_id,
         where: w.uuid == ^wallet_uuid,
         select: [t.uuid, t.type, t.description, t.amount, w.currency, t.inserted_at]
       )
@@ -36,7 +36,7 @@ defmodule WalletApp.Wallet do
     Repo.all(query)
   end
 
-  defp get_wallets_query(account_id) do
+  defp get_wallets_query(user_id) do
     last_tx_query =
       from(t in Transaction,
         order_by: [desc: t.inserted_at],
@@ -47,7 +47,7 @@ defmodule WalletApp.Wallet do
     from(w in Wallet,
       left_join: t2 in subquery(last_tx_query),
       on: t2.wallet_id == w.id,
-      where: w.account_id == ^account_id,
+      where: w.user_id == ^user_id,
       select: [
         w.uuid,
         w.currency,

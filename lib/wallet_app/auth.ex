@@ -8,8 +8,8 @@ defmodule WalletApp.Auth do
     Bcrypt.verify_pass(password, hashed_password)
   end
 
-  def generate_session_token(%{account_uuid: account_uuid}) do
-    %{account_uuid: account_uuid, exp: DateTime.to_unix(DateTime.utc_now()) + @one_hour}
+  def generate_session_token(%{user_uuid: user_uuid}) do
+    %{user_uuid: user_uuid, exp: DateTime.to_unix(DateTime.utc_now()) + @one_hour}
     |> JsonWebToken.sign(@jwt_opts)
     |> (&{:ok, &1}).()
   end
