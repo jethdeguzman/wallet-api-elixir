@@ -3,6 +3,7 @@ defmodule WalletApp.WalletsTest do
 
   alias WalletApp.{Accounts, Wallets}
   alias Accounts.User
+  alias Wallets.Wallet
 
   @valid_currency "PHP"
   @invalid_currency "PH"
@@ -17,7 +18,8 @@ defmodule WalletApp.WalletsTest do
 
   describe "create_wallet/2" do
     test "successful create wallet", %{user: user} do
-      assert {:ok, _wallet} = Wallets.create_wallet(user, @valid_currency)
+      assert {:ok, wallet} = Wallets.create_wallet(user, @valid_currency)
+      assert wallet = %Wallet{}
     end
 
     test "invalid currency", %{user: user} do
@@ -77,5 +79,4 @@ defmodule WalletApp.WalletsTest do
       assert length(wallets) == 0
     end
   end
-
 end
