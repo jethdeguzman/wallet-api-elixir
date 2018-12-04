@@ -1,26 +1,23 @@
-defmodule WalletApp.Schema.Account do
+defmodule WalletApp.Accounts.User do
   use Ecto.Schema
-
   import Ecto.Changeset
 
-  alias WalletApp.Schema.Wallet
+  alias WalletApp.Wallets.Wallet
 
-  schema "accounts" do
+  schema "users" do
     field(:uuid, :string)
     field(:username, :string)
     field(:password, :string)
-    timestamps()
     has_many(:wallets, Wallet)
+    timestamps()
   end
 
-  @required_fields [:uuid, :username, :password]
+  def changeset(user, attrs \\ %{}) do
+    attrs = Map.put(attrs, :uuid, Ecto.UUID.generate())
 
-  def changeset(account, params \\ %{}) do
-    params = Map.put(params, :uuid, Ecto.UUID.generate())
-
-    account
-    |> cast(params, @required_fields)
-    |> validate_required(@required_fields)
+    user
+    |> cast(attrs, [:uuid, :username, :password])
+    |> validate_required([:username, :password])
     |> validate_format(:username, ~r/^[a-zA-Z0-9_-]+$/)
     |> validate_length(:password, min: 6)
     # unique_constraint is not properly working with sqlite

@@ -1,21 +1,21 @@
-# WalletApp
+# Wallet App
 
-**TODO: Add description**
+Manage mutli currency wallets
 
-## Installation
+## Contexts
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `wallet_app` to your list of dependencies in `mix.exs`:
+Accounts
 
-```elixir
-def deps do
-  [
-    {:wallet_app, "~> 0.1.0"}
-  ]
-end
-```
+  - [x] Register
+  - [x] Login
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/wallet_app](https://hexdocs.pm/wallet_app).
+Wallets
 
+  - [x] Create Wallet
+  - [x] Get user wallets
+  - [x] Get user wallet
+  - [x] Get user wallet transactions
+
+Transaction
+
+  - [ ] Create wallet transaction
