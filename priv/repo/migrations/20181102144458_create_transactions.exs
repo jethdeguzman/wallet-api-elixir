@@ -8,7 +8,7 @@ defmodule WalletApp.Repo.Migrations.CreateTransactions do
   	  add :description, :string
   	  add :amount, :decimal
   	  add :balance, :decimal
-  	  add :wallet_id, references(:wallets)
+  	  add :wallet_id, references(:wallets), null: false
   	  timestamps()
   	end
   end
