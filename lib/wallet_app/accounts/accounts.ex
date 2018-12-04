@@ -31,9 +31,30 @@ defmodule WalletApp.Accounts do
     end
   end
 
+  def get_user_by(%{session_token: session_token}) do
+    with(
+      {:ok, %{user_uuid: uuid}} <- decode_session_token(session_token)
+    ) do
+      case Repo.get_by(User, uuid: uuid) do
+        %User{} = user -> {:ok, user}
+        nil -> {:error, :not_found}
+      end
+    else
+      _ -> {:error, :invalid_token}
+    end
+  end
+
   defp generate_session_token(%{user_uuid: user_uuid}) do
     %{user_uuid: user_uuid, exp: DateTime.to_unix(DateTime.utc_now()) + @one_hour}
     |> JsonWebToken.sign(@jwt_opts)
     |> (&{:ok, &1}).()
+  end
+
+  defp decode_session_token(session_token) do
+    try do
+      JsonWebToken.verify(session_token, @jwt_opts)
+    rescue
+      e in _ -> {:error, e}
+    end
   end
 end

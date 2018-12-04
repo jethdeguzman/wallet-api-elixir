@@ -32,8 +32,11 @@ defmodule WalletApp.AccountsTest do
       %{user: user}
     end
 
-    test "successful login" do
-      assert {:ok, _session_token} = Accounts.login(@valid_username, @valid_password)
+    test "successful login", %{user: user} do
+      assert {:ok, session_token} = Accounts.login(@valid_username, @valid_password)
+
+      {:ok, current_user} = Accounts.get_user_by(%{session_token: session_token})
+      assert current_user == user
     end
 
     test "password not matched login" do
