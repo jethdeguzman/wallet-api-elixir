@@ -36,5 +36,4 @@ defmodule WalletApp.Accounts do
     |> JsonWebToken.sign(@jwt_opts)
     |> (&{:ok, &1}).()
   end
-
 end

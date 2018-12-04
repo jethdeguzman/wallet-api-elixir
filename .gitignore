@@ -26,5 +26,5 @@ wallet_app-*.tar
 *.sqlite3
 # Sqlite3 temp files
 *.sqlite3-*
-
-
+#Elixir vs code lint
+.elixir_ls
