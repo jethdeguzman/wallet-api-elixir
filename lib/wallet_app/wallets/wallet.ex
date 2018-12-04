@@ -18,10 +18,9 @@ defmodule WalletApp.Wallets.Wallet do
     attrs = Map.put(attrs, :uuid, Ecto.UUID.generate())
 
     wallet
-    |> cast(attrs, [:uuid, :currency, :user_id])
-    |> validate_required([:uuid, :currency, :user_id])
+    |> cast(attrs, [:uuid, :currency])
+    |> validate_required([:uuid, :currency])
     |> validate_length(:currency, min: 3)
     |> validate_format(:currency, ~r/^[A-Z]+$/)
-    |> foreign_key_constraint(:user_id)
   end
 end

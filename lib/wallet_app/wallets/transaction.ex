@@ -19,7 +19,7 @@ defmodule WalletApp.Wallets.Transaction do
     attrs = Map.put(attrs, :uuid, Ecto.UUID.generate())
 
     transaction
-    |> cast(attrs, [:uuid, :type, :description, :amount, :balance, :wallet_id])
-    |> validate_required([:type, :description, :amount, :balance, :wallet_id])
+    |> cast(attrs, [:uuid, :type, :description, :amount, :balance])
+    |> validate_required([:type, :description, :amount, :balance])
   end
 end
