@@ -1,7 +1,8 @@
-defmodule WalletApp.WalletsTest do
+defmodule Wallet.WalletsTest do
   use ExUnit.Case
 
-  alias WalletApp.{Accounts, Wallets}
+  alias Wallet.Repo, as: WalletRepo
+  alias Wallet.{Accounts, Wallets}
   alias Accounts.User
   alias Wallets.Wallet
 
@@ -11,7 +12,7 @@ defmodule WalletApp.WalletsTest do
   @invalid_wallet_uuid "XXXX"
 
   setup do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(WalletApp.Repo)
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(WalletRepo)
     {:ok, user} = Accounts.register("testuser", "password")
     %{user: user}
   end

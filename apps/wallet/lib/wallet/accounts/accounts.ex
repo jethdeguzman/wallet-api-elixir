@@ -1,11 +1,11 @@
-defmodule WalletApp.Accounts do
+defmodule Wallet.Accounts do
   import Application
 
-  alias WalletApp.Repo
-  alias WalletApp.Accounts.User
+  alias Wallet.Repo
+  alias Wallet.Accounts.User
 
   @one_hour 60 * 60
-  @jwt_opts %{alg: get_env(:wallet_app, :jwt_alg), key: get_env(:wallet_app, :jwt_key)}
+  @jwt_opts %{alg: get_env(:wallet, :jwt_alg), key: get_env(:wallet, :jwt_key)}
 
   def register(username, password) do
     %User{}
@@ -32,9 +32,7 @@ defmodule WalletApp.Accounts do
   end
 
   def get_user_by(%{session_token: session_token}) do
-    with(
-      {:ok, %{user_uuid: uuid}} <- decode_session_token(session_token)
-    ) do
+    with({:ok, %{user_uuid: uuid}} <- decode_session_token(session_token)) do
       case Repo.get_by(User, uuid: uuid) do
         %User{} = user -> {:ok, user}
         nil -> {:error, :not_found}

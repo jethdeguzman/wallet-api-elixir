@@ -1,8 +1,9 @@
-defmodule WalletApp.Accounts.User do
+defmodule Wallet.Accounts.User do
   use Ecto.Schema
   import Ecto.Changeset
 
-  alias WalletApp.Wallets.Wallet
+  alias Wallet.Repo, as: WalletRepo
+  alias Wallet.Wallets.Wallet
 
   schema "users" do
     field(:uuid, :string)
@@ -21,7 +22,7 @@ defmodule WalletApp.Accounts.User do
     |> validate_format(:username, ~r/^[a-zA-Z0-9_-]+$/)
     |> validate_length(:password, min: 6)
     # unique_constraint is not properly working with sqlite
-    |> unsafe_validate_unique([:username], WalletApp.Repo)
+    |> unsafe_validate_unique([:username], WalletRepo)
     |> generate_hash_password
   end
 

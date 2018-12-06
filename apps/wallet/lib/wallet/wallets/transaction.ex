@@ -1,8 +1,8 @@
-defmodule WalletApp.Wallets.Transaction do
+defmodule Wallet.Wallets.Transaction do
   use Ecto.Schema
   import Ecto.Changeset
 
-  alias WalletApp.Wallets.Wallet
+  alias Wallet.Wallets.Wallet
 
   schema "transactions" do
     field(:uuid, :string)
